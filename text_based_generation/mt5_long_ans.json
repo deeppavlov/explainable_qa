@@ -1,0 +1,58 @@
+{
+  "chainer": {
+    "in": ["question", "contexts"],
+    "pipe": [
+      {
+        "class_name": "preprocessors:TorchTransformersGenerativeQAPreprocessor",
+        "vocab_file": "{TRANSFORMER}",
+        "max_seq_length": 512,
+        "answer_maxlength": 30,
+        "in": ["question", "contexts"],
+        "out": ["input_ids", "attention_mask", "target_ids"]
+      },
+      {
+        "class_name": "torch_generative_qa:TorchGenerativeQA",
+        "pretrained_transformer": "{TRANSFORMER}",
+        "save_path": "{MODEL_PATH}/model",
+        "load_path": "{MODEL_PATH}/model",
+        "optimizer": "AdamW",
+        "optimizer_parameters": {
+          "lr": 3e-04,
+          "weight_decay": 0.01,
+          "betas": [0.9, 0.999],
+          "eps": 1e-06
+        },
+        "learning_rate_drop_patience": 20,
+        "learning_rate_drop_div": 1.5,
+        "in": ["input_ids", "attention_mask"],
+        "out": ["answer"]
+      }
+    ],
+    "out": ["answer"]
+  },
+  "metadata": {
+    "variables": {
+      "MAX_TOKENS" : 50,
+      "LOWERCASE": false,
+      "ROOT_PATH": "~/.deeppavlov",
+      "DOWNLOADS_PATH": "{ROOT_PATH}/downloads",
+      "MODELS_PATH": "{ROOT_PATH}/models",
+      "MODEL_PATH": "{MODELS_PATH}/mt5_ms_marco_dsberquad",
+      "TRANSFORMER": "{DOWNLOADS_PATH}/torch_bert_models/mt5_small"
+    },
+    "download": [
+        {
+        "url": "https://files.deeppavlov.ai/deeppavlov_data/extended_generative_qa/sberquad/sbersquad_detailed.json",
+        "subdir": "{DOWNLOADS_PATH}/dsberquad"
+        },
+        {
+        "url": "https://files.deeppavlov.ai/tmp/mt5_small.tar.gz",
+        "subdir": "{DOWNLOADS_PATH}/torch_bert_models/mt5_small"
+        },
+        {
+         "url": "https://files.deeppavlov.ai/generative_qa_detailed/models/mt5_ms_marco_dsberquad.tar.gz",
+         "subdir": "{MODEL_PATH}"
+        }      
+    ]
+  }
+}

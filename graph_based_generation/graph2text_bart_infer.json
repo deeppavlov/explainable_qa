@@ -1,0 +1,62 @@
+{
+ "chainer": {
+    "in": ["graph"],
+    "pipe": [
+      {
+        "class_name": "triplets_preprocessor:TripletsPreprocessor",
+        "in": ["graph"],
+        "out": ["preprocessed_graph"]
+      },
+      {
+        "class_name": "triplets_tokenizer:TripletsTokenizer",
+        "tokenizer_path": "{MODEL_PATH}/pretrain",
+        "in": ["preprocessed_graph"],
+        "out": ["input_ids"]
+      },
+      {
+        "class_name": "graph2text_bart:GraphToTextBart",
+        "checkpoint_path": "{MODEL_PATH}/checkpoint",
+        "tokenizer_path": "{MODEL_PATH}/pretrain",
+        "in": ["input_ids"],
+        "out": ["answer"]
+      }
+    ],
+    "out": ["answer"]
+  },
+  "metadata": {
+    "variables": {
+      "ROOT_PATH": "~/.deeppavlov",
+      "DOWNLOADS_PATH": "{ROOT_PATH}/downloads",
+      "MODELS_PATH": "{ROOT_PATH}/models",
+      "MODEL_PATH": "{MODELS_PATH}/graph2text/JointGT_BART"
+    },
+    "download": [
+      {
+        "url": "https://files.deeppavlov.ai/deeppavlov_data/generative_question_answering_new/jointgt_bart/pytorch_model.bin",
+        "subdir": "{MODEL_PATH}/pretrain"
+      },
+      {
+        "url": "https://files.deeppavlov.ai/deeppavlov_data/generative_question_answering_new/jointgt_bart/config.json",
+        "subdir": "{MODEL_PATH}/pretrain"
+      },
+      {
+        "url": "https://files.deeppavlov.ai/deeppavlov_data/generative_question_answering_new/jointgt_bart/vocab.json",
+        "subdir": "{MODEL_PATH}/pretrain"
+      },
+      {
+        "url": "https://files.deeppavlov.ai/deeppavlov_data/generative_question_answering_new/jointgt_bart/merges.txt",
+        "subdir": "{MODEL_PATH}/pretrain"
+      },
+
+      {
+        "url": "https://files.deeppavlov.ai/deeppavlov_data/generative_question_answering_new/jointgt_bart_webnlg/pytorch_model.bin",
+        "subdir": "{MODEL_PATH}/checkpoint"
+      },
+      {
+        "url": "https://files.deeppavlov.ai/deeppavlov_data/generative_question_answering_new/jointgt_bart_webnlg/config.json",
+        "subdir": "{MODEL_PATH}/checkpoint"
+      }
+
+    ]
+  }
+}

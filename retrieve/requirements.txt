@@ -1,0 +1,15 @@
+pyopenssl==22.0.0
+Flask==1.1.1
+itsdangerous==2.0.1
+gunicorn==19.9.0
+requests==2.27.1
+jinja2<=3.0.3
+Werkzeug<=2.0.3
+spacy==3.2.0
+pymorphy2==0.8
+nltk==3.6.5
+pytorch-crf==0.7.*
+hdt==2.3
+rapidfuzz==2.1.*
+torch==1.7.1
+transformers==4.10.1

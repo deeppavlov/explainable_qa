@@ -1,0 +1,69 @@
+services:
+  retrieve:
+    container_name: retrieve
+    build:
+      args:
+        PORT: 8005
+        SRC_DIR: retrieve
+      context: .
+      dockerfile: retrieve/Dockerfile
+    volumes:
+      - "./retrieve:/src"
+      - ~/.deeppavlov:/root/.deeppavlov
+    ports:
+      - 8005:8005
+    environment:
+      - CUDA_VISIBLE_DEVICES=7
+  
+  text-based-generation:
+    container_name: text-based-generation
+    build:
+      args:
+        PORT: 8006
+        SRC_DIR: text_based_generation
+        RETRIEVE_ENDPOINT: http://retrieve:8005/respond
+      context: .
+      dockerfile: text_based_generation/Dockerfile
+    volumes:
+      - "./text_based_generation:/src"
+      - ~/.deeppavlov:/root/.deeppavlov
+    ports:
+      - 8006:8006
+    environment:
+      - CUDA_VISIBLE_DEVICES=7
+
+  graph-based-generation:
+    container_name: graph-based-generation
+    build:
+      args:
+        PORT: 8007
+        SRC_DIR: graph_based_generation
+        KBQA_ENDPOINT: http://kbqa:8008/respond
+      context: .
+      dockerfile: graph_based_generation/Dockerfile
+    volumes:
+      - "./graph_based_generation:/src"
+      - ~/.deeppavlov:/root/.deeppavlov
+    ports:
+      - 8007:8007
+    environment:
+      - CUDA_VISIBLE_DEVICES=7
+
+  kbqa:
+    container_name: kbqa
+    build:
+      args:
+        PORT: 8008
+        SRC_DIR: kbqa
+        LAN: RU
+      context: .
+      dockerfile: kbqa/Dockerfile
+    volumes:
+      - "./kbqa:/src"
+      - ~/.deeppavlov:/root/.deeppavlov
+    ports:
+      - 8008:8008
+    environment:
+      - CUDA_VISIBLE_DEVICES=7
+
+version: '3.7'

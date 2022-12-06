@@ -1,0 +1,3 @@
+--no-index -f https://pytorch-geometric.com/whl/torch-1.6.0+cu102.html
+torch-scatter==2.0.5
+git+https://github.com/surkovv/JointGT.git@main

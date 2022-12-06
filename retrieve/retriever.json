@@ -1,0 +1,80 @@
+{
+  "chainer": {
+    "in": ["question_raw"],
+    "pipe": [
+      {
+        "config_path": "configs/entity_extraction_ru.json",
+        "in": ["question_raw"],
+        "out": ["entity_substr", "entity_pages"]
+      },
+      {
+        "class_name": "hashing_tfidf_vectorizer",
+        "id": "vectorizer",
+        "load_path": "{ODQA_PATH}/ruwiki_tfidf_matrix_lite_new.npz",
+        "tokenizer": {
+          "class_name": "ru_tokenizer",
+          "lemmas": true,
+          "ngram_range": [1, 3]
+        }
+      },
+      {
+        "class_name": "models.qa.tfidf_ranker:TfidfRanker",
+        "top_n": 10000,
+        "out_top_n": 500,
+        "in": ["question_raw"],
+        "out": ["init_tfidf_doc_ids", "tfidf_doc_scores"],
+        "filter_flag": true,
+        "vectorizer": "#vectorizer"
+      },
+      {
+        "class_name": "models.qa.wiki_sqlite:WikiSQLiteVocab",
+        "in": ["init_tfidf_doc_ids", "entity_pages"],
+        "out": ["tfidf_doc_text", "tfidf_doc_ids", "tfidf_doc_pages"],
+        "shuffle": false,
+        "load_path": "{DOWNLOADS_PATH}/odqa/ruwiki_par_page.db"
+      },
+      {
+        "class_name": "string_multiplier",
+        "in": ["question_raw", "tfidf_doc_text"],
+        "out":["questions"]
+      },
+      {
+        "class_name": "models.qa.logit_ranker:LogitRanker",
+        "batch_size": 64,
+        "squad_model": {"config_path": "configs/qa_multisberquad_bert.json"},
+        "sort_noans": true,
+        "return_answer_sentence": true,
+        "top_n": 50,
+        "in": ["tfidf_doc_text", "questions", "tfidf_doc_ids", "tfidf_doc_pages"],
+        "out": ["answers", "answer_scores", "answer_logits", "answer_places", "answer_doc_ids", "answer_doc_pages",
+                "answer_sentences"]
+      },
+      {
+        "class_name": "models.qa.answer_postprocessor:AnswerPostprocessor",
+        "top_n": 5,
+        "in": ["answers", "answer_scores", "answer_logits", "answer_doc_ids", "answer_doc_pages", "answer_places",
+               "answer_sentences"],
+        "out": ["f_answers", "f_answer_scores", "f_answer_logits", "f_answer_places", "f_answer_sentences"]
+      }
+    ],
+    "out": ["f_answers", "f_answer_scores", "f_answer_logits", "f_answer_places", "f_answer_sentences"]
+  },
+  "metadata": {
+    "variables": {
+      "ROOT_PATH": "~/.deeppavlov",
+      "DOWNLOADS_PATH": "{ROOT_PATH}/downloads",
+      "MODELS_PATH": "{ROOT_PATH}/models",
+      "ODQA_PATH": "{MODELS_PATH}/odqa"
+    },
+    "download": [
+      {
+        "url": "http://files.deeppavlov.ai/deeppavlov_data/qa_vtb/ruwiki_tfidf_matrix_lite_new.tar.gz",
+        "subdir": "{ODQA_PATH}"
+      },
+      {
+        "url": "http://files.deeppavlov.ai/deeppavlov_data/qa_vtb/ruwiki_par_page.tar.gz",
+        "subdir": "{DOWNLOADS_PATH}/odqa"
+      }
+    ]
+  }
+}

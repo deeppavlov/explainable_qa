@@ -391,6 +391,21 @@ res = requests.post(
 
 ```
 
+#### Examples of output:
+
+```json
+    [
+      {"answer": "Robert Zemeckis",
+       "answer_ids": ["Q187364"],
+       "confidence": 1.0,
+       "entities_and_rels": [["Q134773"], ["P57"]],
+       "long_explanation": "Forrest Gump was created by Robert Zemeckis.",
+       "sparql_query": "SELECT ?uri WHERE { wd:Q134773 wdt:P57 ?uri. }",
+       "triplets": [["Forrest Gump", "director", "Robert Zemeckis"]]
+      }
+    ]
+```
+
 ### Get metrics of the model, which generates answer explanation from triplets:
 
 

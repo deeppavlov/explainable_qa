@@ -193,7 +193,12 @@ Example of the output:
 ```python
 import requests
 
-res = requests.post("http://0.0.0.0:8006/get_metrics", json={"num_samples": 100}).json()
+res = requests.post(
+    "http://0.0.0.0:8006/get_metrics",
+    json={"num_samples": 100,
+          "metric_types": ["ans_expl_given_paragraph", "ans_expl_given_question""]}
+).json()
+
 print(res)
 ```
 

@@ -87,52 +87,58 @@ def get_answer_and_explaination():
 @app.route("/get_metrics", methods=["POST"])
 def get_metrics():
     num_samples = request.json.get("num_samples", 100)
+    metric_types = request.json.get("metric_types", ["ans_expl_given_paragraph"])
     with open("/root/.deeppavlov/downloads/dsberquad/sbersquad_detailed.json", 'r') as fl:
         dataset = json.load(fl)
 
-    long_answers = []
-    res_answers = []
-    batch_size = 10
-    num_batches = len(dataset["test"][:num_samples]) // batch_size + int(len(dataset["test"][:num_samples]) % batch_size > 0)
-    logger.info(f"num_samples {num_samples} -- num_batches {num_batches}")
-    for i in range(num_batches):
-        q_batch = []
-        c_batch = []
-        l_answer = []
-        for (question, contexts), (short_answer, long_answer) in dataset["test"][i*batch_size:(i+1)*batch_size]:
-            q_batch.append(question)
-            c_batch.append(contexts)
-            long_answers.append([long_answer])
-        res, _ = generator(q_batch, c_batch)
-        for output_answer in res:
-            output_answer = output_answer.replace("<pad>", "").replace("</s>", "").strip()
-            res_answers.append(copy.deepcopy(output_answer))
-    
-    generation_sacrebleu = SacreBLEU.corpus_score(res_answers, long_answers).score
-    
-    short_answers, res_short_answers = [], []
-    long_answers, res_long_answers = [], []
-    for (question, contexts), (short_answer, long_answer) in dataset["test"][:num_samples]:
-        retrieve_res_batch = requests.post(RETRIEVE_ENDPOINT, json={"questions": [question]}).json()
-        if retrieve_res_batch and retrieve_res_batch[0]:
-            retrieve_res_list = retrieve_res_batch[0]
-            res_short_answer = retrieve_res_list[0]["answer"]
-            short_answers.append([short_answer])
-            res_short_answers.append(res_short_answer)
-            sentences = [retrieve_res_list[0]["answer_sentence"]]
-            res, _ = generator([question], [sentences])
-            if res:
-                output_answer = res[0].replace("<pad>", "").replace("</s>", "").strip()
-                long_answers.append([long_answer])
-                res_long_answers.append(copy.deepcopy(output_answer))
+    metrics_dict = {}
+    if "ans_expl_given_paragraph" in metric_types:
+        long_answers = []
+        res_answers = []
+        batch_size = 10
+        num_batches = len(dataset["test"][:num_samples]) // batch_size + int(len(dataset["test"][:num_samples]) % batch_size > 0)
+        logger.info(f"num_samples {num_samples} -- num_batches {num_batches}")
+        for i in range(num_batches):
+            q_batch = []
+            c_batch = []
+            l_answer = []
+            for (question, contexts), (short_answer, long_answer) in dataset["test"][i*batch_size:(i+1)*batch_size]:
+                q_batch.append(question)
+                c_batch.append(contexts)
+                long_answers.append(long_answer)
+            res, _ = generator(q_batch, c_batch)
+            for output_answer in res:
+                output_answer = output_answer.replace("<pad>", "").replace("</s>", "").strip()
+                res_answers.append(copy.deepcopy(output_answer))
+        
+        generation_sacrebleu = SacreBLEU.corpus_score(res_answers, [long_answers]).score
+        metrics_dict["SacreBLEU of explanation given paragraph"] = round(generation_sacrebleu, 2)
 
-    exact_match = squad_exact_match(short_answers, res_short_answers)
-    f1 = squad_f1(short_answers, res_short_answers)
-    ans_expl_sacrebleu = SacreBLEU.corpus_score(res_long_answers, long_answers).score
-    return jsonify({"SacreBLUE of explanation generation": generation_sacrebleu,
-                    "SacreBLEU of answer search and subsequent explanation generation": ans_expl_sacrebleu,
-                    "F1 of short answers": f1,
-                    "Exact match of short answers": exact_match})
+    if "ans_expl_given_question" in metric_types:
+        short_answers, res_short_answers = [], []
+        long_answers, res_long_answers = [], []
+        for (question, contexts), (short_answer, long_answer) in dataset["test"][:num_samples]:
+            retrieve_res_batch = requests.post(RETRIEVE_ENDPOINT, json={"questions": [question]}).json()
+            if retrieve_res_batch and retrieve_res_batch[0]:
+                retrieve_res_list = retrieve_res_batch[0]
+                res_short_answer = retrieve_res_list[0]["answer"]
+                short_answers.append([short_answer])
+                res_short_answers.append(res_short_answer)
+                sentences = [retrieve_res_list[0]["answer_sentence"]]
+                res, _ = generator([question], [sentences])
+                if res:
+                    output_answer = res[0].replace("<pad>", "").replace("</s>", "").strip()
+                    long_answers.append(long_answer)
+                    res_long_answers.append(copy.deepcopy(output_answer))
+
+        exact_match = squad_exact_match(short_answers, res_short_answers)
+        f1 = squad_f1(short_answers, res_short_answers)
+        ans_expl_sacrebleu = SacreBLEU.corpus_score(res_long_answers, [long_answers]).score
+        metrics_dict["SacreBLEU of explanation given question"] = round(ans_expl_sacrebleu, 2)
+        metrics_dict["F1 of short answers"] = round(f1, 4)
+        metrics_dict["Exact match of short answers"] = round(exact_match, 4)
+
+    return jsonify(metrics_dict)
 
 
 if __name__ == "__main__":

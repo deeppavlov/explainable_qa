@@ -104,7 +104,8 @@
             "type": "http://d_t"
           }
         },
-        "max_comb_num": 40000,
+        "max_triplets_num": 5000,
+        "max_comb_num": 1000,
         "used_rels_filename": "{DOWNLOADS_PATH}/dbpedia/used_lcquad1_rels_lite.json",
         "rel_q2name_filename": "{DOWNLOADS_PATH}/dbpedia/rels_dict_lite.json",
         "lang": "@en"
@@ -154,6 +155,7 @@
         "sparql_queries_filename": "{DOWNLOADS_PATH}/dbpedia/sparql_queries.json",
         "entities_to_leave": 7,
         "rels_to_leave": 10,
+        "max_comb_num": 300,
         "return_answers": false,
         "map_query_str_to_kb": [["dbr:", "http://d_r/"], ["dbp:type", "http://d_t"], ["dbp:", ""],
                                 ["dbo:", "http://d_o/"]],
@@ -190,7 +192,6 @@
         "nll_path_ranking": true,
         "rel_thres": -10,
         "filter_high_rel_conf_flag": true,
-        "max_comb_num": 1000,
         "in": ["x_punct", "template_type", "cand_answers", "entity_substr", "template_answers", "equal_flag"],
         "out": ["answers", "confs", "answer_ids", "ent_rels", "query", "triplets"]
       }

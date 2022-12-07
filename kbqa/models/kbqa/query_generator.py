@@ -337,6 +337,7 @@ class QueryGenerator(QueryGeneratorBase):
                     if answers:
                         outputs.append([new_combs[0], new_combs[1]] + [rel for rel, score in new_combs[2][:-1]] +
                                        answers + [(confidence, entity_conf), found_comb, query_info, new_combs[2]])
+            outputs = outputs[:50000]
             outputs_dict = defaultdict(list)
             types_dict = defaultdict(list)
             for output in outputs:

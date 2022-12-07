@@ -76,7 +76,8 @@ def get_metrics():
         res_answers, res_answer_ids, res_queries = [], [], []
         gold_answers, gold_answer_ids, gold_queries, question_types = [], [], [], []
         correct_expl = 0
-        for n, ((question, question_type), (g_answer_ids, g_answer_labels, g_query)) in enumerate(dataset["test"]):
+        for n, ((question, question_type), (g_answer_ids, g_answer_labels, g_query)) \
+                in enumerate(dataset["test"][:num_samples]):
             g_entities, g_rels = get_ent_rels(g_query, "wikidata")
             g_query = query_formatter([g_query])[0]
             logger.info(f"{n} --- question {question}")
@@ -116,18 +117,20 @@ def get_metrics():
                             if ((not include_types or all([tp in elem[0] for tp in include_types])) and
                                 (not not_include_type or not_include_type not in elem[0]))]
 
-            gold_answers = [elem[1] for elem in answers_info]
-            gold_answer_ids = [elem[2] for elem in answers_info]
-            gold_queries = [elem[3] for elem in answers_info]
-            res_answers = [elem[4] for elem in answers_info]
-            res_answer_ids = [elem[5] for elem in answers_info]
-            res_queries = [elem[6] for elem in answers_info]
-            cur_acc = kbqa_accuracy(res_answers, res_answer_ids, res_queries, gold_answers, gold_answer_ids,
-                                    gold_queries)
-            acc_by_types[type_name] = cur_acc
+            cur_gold_answers = [elem[1] for elem in answers_info]
+            cur_gold_answer_ids = [elem[2] for elem in answers_info]
+            cur_gold_queries = [elem[3] for elem in answers_info]
+            cur_res_answers = [elem[4] for elem in answers_info]
+            cur_res_answer_ids = [elem[5] for elem in answers_info]
+            cur_res_queries = [elem[6] for elem in answers_info]
+            cur_acc = kbqa_accuracy(cur_res_answers, cur_res_answer_ids, cur_res_queries, cur_gold_answers,
+                                    cur_gold_answer_ids, cur_gold_queries)
+            acc_by_types[type_name] = round(cur_acc, 4)
         
         expl_acc = correct_expl / len(dataset["test"])
-        return jsonify({"question_answering_accuracy": qa_acc, "accuracy_of_explanations": expl_acc})
+        return jsonify({"question_answering_accuracy": round(qa_acc, 4),
+                        "accuracy_of_explanations": round(expl_acc, 4),
+                        "question_answering_accuracy_by_types": acc_by_types})
 
     elif LAN == "EN":
         kbqa_lcquad = build_model("kbqa_lcquad.json")
@@ -139,11 +142,12 @@ def get_metrics():
         res_answer_ids, res_queries = [], []
         gold_answer_ids, gold_queries = [], []
         correct_expl = 0
-        for n, (question, (g_answer_ids, g_query)) in enumerate(dataset["test"]):
+        for n, (question, (g_answer_ids, g_query)) in enumerate(dataset["test"][:num_samples]):
             g_entities, g_rels = get_ent_rels(g_query, "dbpedia")
             g_query = query_formatter([g_query])[0]
             logger.info(f"{n} --- question {question}")
-            answers_batch, confs_batch, answer_ids_batch, ent_rels_batch, query_batch, triplets_batch = kbqa_lcquad([question])
+            answers_batch, confs_batch, answer_ids_batch, ent_rels_batch, query_batch, triplets_batch = \
+                kbqa_lcquad([question])
             questions.append(question)
             gold_answer_ids.append(g_answer_ids)
             gold_queries.append(g_query)
@@ -151,14 +155,20 @@ def get_metrics():
             res_queries.append(query_batch[0])
             if answer_ids_batch and ent_rels_batch and len(ent_rels_batch[0]) == 2:
                 f_entities, f_rels = ent_rels_batch[0]
+                g_answer_ids = [gold_ans_id.split("/")[-1].replace("@en", "").strip('"')
+                                for gold_ans_id in g_answer_ids if isinstance(gold_ans_id, str)]
+                g_entities = [ent.split("/")[-1] for ent in g_entities]
+                f_rels = [rel.split("/")[-1] for rel in f_rels]
+                g_rels = [rel.split("/")[-1] for rel in g_rels]
+
                 if set(answer_ids_batch[0]) == set(g_answer_ids) and set(f_entities) == set(g_entities) \
                         and set(f_rels) == set(g_rels):
                     correct_expl += 1
 
         precision, recall, f1 = kbqa_f1(questions, res_answer_ids, res_queries, gold_answer_ids, gold_queries)
-        expl_acc = correct_expl / len(dataset["test"])
-        return jsonify({"qa_precision": precision, "qa_recall": recall, "qa_f1": f1,
-                        "accuracy_of_explanations": expl_acc})
+        expl_acc = correct_expl / len(dataset["test"][:num_samples])
+        return jsonify({"qa_precision": round(precision, 4), "qa_recall": round(recall, 4), "qa_f1": round(f1, 4),
+                        "accuracy_of_explanations": round(expl_acc, 4)})
 
 
 if __name__ == "__main__":

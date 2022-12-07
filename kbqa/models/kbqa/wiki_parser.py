@@ -36,7 +36,8 @@ class WikiParser:
                  prefixes: Dict[str, Union[str, Dict[str, str]]] = None,
                  used_rels_filename: str = None,
                  rel_q2name_filename: str = None,
-                 max_comb_num: int = 1e6,
+                 max_comb_num: int = 1e5,
+                 max_triplets_num: int = 1e6,
                  lang: str = "@en", **kwargs) -> None:
         """
 
@@ -84,6 +85,7 @@ class WikiParser:
                 self.rel_q2name = load_pickle(str(expand_path(rel_q2name_filename)))
 
         self.max_comb_num = max_comb_num
+        self.max_triplets_num = max_triplets_num
         self.lang = lang
         self.replace_tokens = [('"', ''), (self.lang, " "), ('$', ' '), ('  ', ' ')]
 
@@ -97,16 +99,16 @@ class WikiParser:
         for n, (parser_info, query) in enumerate(zip(parser_info_list, queries_list)):
             if parser_info == "query_execute":
                 answers, found_rels, found_combs = [], [], []
-                #try:
-                what_return, rels_from_query, query_seq, filter_info, order_info, answer_types, rel_types, \
-                return_if_found = query
-                if answer_types:
-                    query_answer_types = answer_types
-                answers, found_rels, found_combs = \
-                    self.execute(what_return, rels_from_query, query_seq, filter_info, order_info,
-                                 query_answer_types, rel_types)
-                #except:
-                #    log.info("Wrong arguments are passed to wiki_parser")
+                try:
+                    what_return, rels_from_query, query_seq, filter_info, order_info, answer_types, rel_types, \
+                    return_if_found = query
+                    if answer_types:
+                        query_answer_types = answer_types
+                    answers, found_rels, found_combs = \
+                        self.execute(what_return, rels_from_query, query_seq, filter_info, order_info,
+                                     query_answer_types, rel_types)
+                except:
+                    log.info("Wrong arguments are passed to wiki_parser")
                 wiki_parser_output.append([answers, found_rels, found_combs])
             elif parser_info == "find_rels":
                 rels = []
@@ -152,10 +154,10 @@ class WikiParser:
                 wiki_parser_output.append(types)
             elif parser_info == "fill_triplets":
                 filled_triplets = []
-                #try:
-                filled_triplets = self.fill_triplets(*query)
-                #except:
-                #    log.info("Wrong arguments are passed to wiki_parser")
+                try:
+                    filled_triplets = self.fill_triplets(*query)
+                except:
+                    log.info("Wrong arguments are passed to wiki_parser")
                 wiki_parser_output.append(filled_triplets)
             elif parser_info == "find_triplets":
                 if self.file_format == "hdt":
@@ -197,6 +199,9 @@ class WikiParser:
                 wiki_parser_output.append("ok")
             else:
                 raise ValueError("Unsupported query type")
+
+            if n >= self.max_comb_num:
+                break
 
         return wiki_parser_output
 
@@ -362,7 +367,7 @@ class WikiParser:
         if self.file_format == "hdt":
             combs = []
             triplets, cnt = self.document.search_triples(subj, rel, obj)
-            if cnt < self.max_comb_num:
+            if cnt < self.max_triplets_num:
                 triplets = list(triplets)
                 if rel == self.prefixes["description"] or rel == self.prefixes["label"]:
                     triplets = [triplet for triplet in triplets if triplet[2].endswith(self.lang)]
@@ -544,7 +549,7 @@ class WikiParser:
             rel = f"{self.prefixes['rels']['direct']}/{rel}"
             if direction == "forw":
                 triplets, cnt = self.document.search_triples(entity, rel, "")
-                if cnt < self.max_comb_num:
+                if cnt < self.max_triplets_num:
                     objects.extend([triplet[2].split('/')[-1] for triplet in triplets])
             else:
                 triplets, cnt = self.document.search_triples("", rel, entity)

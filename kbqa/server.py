@@ -23,7 +23,7 @@ elif LAN == "EN":
     config_name = "kbqa_lcquad2.json"
 
 try:
-    kbqa = build_model(config_name, download=False)
+    kbqa = build_model(config_name, download=True)
     logger.info(f"kbqa model is loaded: {kbqa}")
 except Exception as e:
     logger.exception(e)

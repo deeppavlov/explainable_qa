@@ -159,6 +159,10 @@
       {
         "url": "http://files.deeppavlov.ai/tmp/wiki_dict_properties_full_rus.pickle",
         "subdir": "{DOWNLOADS_PATH}/wikidata_rus"
+      },
+      {
+        "url": "http://files.deeppavlov.ai/tmp/tree_patterns.json",
+        "subdir": "{MODELS_PATH}/slovnet_syntax_parser"
       }
     ]
   }

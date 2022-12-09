@@ -155,6 +155,10 @@
       {
         "url": "http://files.deeppavlov.ai/tmp/distilrubert_tiny_cased_conversational_v1.tar.gz",
         "subdir": "{DOWNLOADS_PATH}/torch_bert_models/distilrubert_tiny_cased_conversational_v1"
+      },
+      {
+        "url": "http://files.deeppavlov.ai/tmp/wiki_dict_properties_full_rus.pickle",
+        "subdir": "{DOWNLOADS_PATH}/wikidata_rus"
       }
     ]
   }

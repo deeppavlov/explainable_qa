@@ -74,6 +74,14 @@
       {
         "url": "http://files.deeppavlov.ai/deeppavlov_data/qa_vtb/ruwiki_par_page.tar.gz",
         "subdir": "{DOWNLOADS_PATH}/odqa"
+      },
+      {
+        "url": "http://files.deeppavlov.ai/deeppavlov_data/entity_linking/rubert_base_cased.tar.gz",
+        "subdir": "{DOWNLOADS_PATH}/torch_bert_models/rubert_base_cased"
+      },
+      {
+        "url": "http://files.deeppavlov.ai/tmp/bert_base_multilingual_cased.tar.gz",
+        "subdir": "{DOWNLOADS_PATH}/torch_bert_models/bert_base_multilingual_cased"
       }
     ]
   }

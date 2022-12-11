@@ -38,29 +38,42 @@ class AnswerPostprocessor(Component):
         self.stopwords = set(stopwords.words("russian"))
         self.morph = pymorphy2.MorphAnalyzer()
 
-    def __call__(self, answers_batch, scores_batch, logits_batch, doc_ids_batch, doc_pages_batch, places_batch,
-                       sentences_batch):
+    def __call__(self, questions_batch, answers_batch, scores_batch, logits_batch, doc_ids_batch, doc_pages_batch,
+                       places_batch, sentences_batch):
         f_answers_batch, f_scores_batch, f_logits_batch, f_places_batch, f_sentences_batch = [], [], [], [], []
-        for answers, scores, logits, doc_ids, doc_pages, places, sentences in \
-                zip(answers_batch, scores_batch, logits_batch, doc_ids_batch, doc_pages_batch, places_batch,
-                    sentences_batch):
+        for question, answers, scores, logits, doc_ids, doc_pages, places, sentences in \
+                zip(questions_batch, answers_batch, scores_batch, logits_batch, doc_ids_batch, doc_pages_batch,
+                    places_batch, sentences_batch):
             answers_lemm = [self.sanitize(answer) for answer in answers]
             answer_cnts_dict = {}
-            for answer_lemm, score in zip(answers_lemm, scores):
-                if answer_lemm not in answer_cnts_dict:
+            answer_pages = set()
+            for answer_lemm, doc_page, score in zip(answers_lemm, doc_pages, scores):
+                if answer_lemm not in answer_cnts_dict and (answer_lemm, doc_page) not in answer_pages:
                     answer_cnts_dict[answer_lemm] = 1
-                elif score > 0.95:
+                    answer_pages.add((answer_lemm, doc_page))
+                elif score > 0.95 and (answer_lemm, doc_page) not in answer_pages:
                     answer_cnts_dict[answer_lemm] += 1
+                    answer_pages.add((answer_lemm, doc_page))
+
+            ngrams_inters = []
+            question_ngrams = self.extract_ngrams(question)
+            for sentence in sentences:
+                sentence_ngrams = self.extract_ngrams(sentence)
+                if set(sentence_ngrams).intersection(question_ngrams):
+                    ngrams_inters.append(1)
+                else:
+                    ngrams_inters.append(0)
+
             answer_cnts = [answer_cnts_dict.get(ans, 0) for ans in answers_lemm]
-            answers_info = list(zip(answers, answers_lemm, answer_cnts, scores, logits, doc_ids, doc_pages, places,
+            answers_info = list(zip(answers, answers_lemm, answer_cnts, ngrams_inters, scores, logits, doc_ids, doc_pages, places,
                                     sentences))
-            answers_info = sorted(answers_info, key=lambda x: (x[2], x[3], x[4]), reverse=True)
+            answers_info = sorted(answers_info, key=lambda x: (x[2], x[3], x[4], x[5]), reverse=True)
             answers_info = answers_info[:self.top_n]
             f_answers_batch.append([elem[0] for elem in answers_info])
-            f_scores_batch.append([elem[3] for elem in answers_info])
-            f_logits_batch.append([elem[4] for elem in answers_info])
-            f_places_batch.append([elem[7] for elem in answers_info])
-            f_sentences_batch.append([elem[8] for elem in answers_info])
+            f_scores_batch.append([elem[4] for elem in answers_info])
+            f_logits_batch.append([elem[5] for elem in answers_info])
+            f_places_batch.append([elem[8] for elem in answers_info])
+            f_sentences_batch.append([elem[9] for elem in answers_info])
         return f_answers_batch, f_scores_batch, f_logits_batch, f_places_batch, f_sentences_batch
 
     def normal_form(self, word):
@@ -70,6 +83,25 @@ class AnswerPostprocessor(Component):
         else:
             normal_form = word
         return normal_form
+    
+    def extract_ngrams(self, text):
+        ngrams = []
+        text_tokens = re.findall(self.re_tokenizer, text)
+        text_tokens = [tok for tok in text_tokens if tok not in self.stopwords]
+        text_tokens = [self.normal_form(tok).lower() for tok in text_tokens]
+        chunks = []
+        chunk = []
+        for tok in text_tokens:
+            if tok in punctuation and chunk:
+                chunks.append(chunk)
+                chunk = []
+            if tok not in punctuation:
+                chunk.append(tok)
+        for chunk in chunks:
+            if len(chunk) >= 4:
+                for i in range(len(chunk) - 3):
+                    ngrams.append(" ".join(chunk[i:i + 4]))
+        return ngrams
 
     def sanitize(self, substr):
         substr = substr.replace("а́", "а")

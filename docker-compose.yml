@@ -5,6 +5,7 @@ services:
       args:
         PORT: 8005
         SRC_DIR: retrieve
+        LITE_INDEX: 1
       context: .
       dockerfile: retrieve/Dockerfile
     volumes:
@@ -55,7 +56,7 @@ services:
       args:
         PORT: 8008
         SRC_DIR: kbqa
-        LAN: RU
+        LAN: EN
       context: .
       dockerfile: kbqa/Dockerfile
     volumes:

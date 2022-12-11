@@ -10,7 +10,7 @@
       {
         "class_name": "hashing_tfidf_vectorizer",
         "id": "vectorizer",
-        "load_path": "{ODQA_PATH}/ruwiki_tfidf_matrix_lite_new.npz",
+        "load_path": "{ODQA_PATH}/ruwiki_tfidf_matrix_fast.npz",
         "tokenizer": {
           "class_name": "ru_tokenizer",
           "lemmas": true,
@@ -68,7 +68,7 @@
     },
     "download": [
       {
-        "url": "http://files.deeppavlov.ai/deeppavlov_data/qa_vtb/ruwiki_tfidf_matrix_lite_new.tar.gz",
+        "url": "http://files.deeppavlov.ai/deeppavlov_data/odqa_dream_rus/ruwiki_tfidf_matrix_fast.tar.gz",
         "subdir": "{ODQA_PATH}"
       },
       {

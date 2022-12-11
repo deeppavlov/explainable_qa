@@ -54,6 +54,7 @@ class TorchGenerativeQA(TorchModel):
                  load_before_drop: bool = True,
                  clip_norm: Optional[float] = None,
                  min_learning_rate: float = 1e-06,
+                 device: str = "gpu",
                  **kwargs) -> None:
 
         if not optimizer_parameters:
@@ -77,6 +78,7 @@ class TorchGenerativeQA(TorchModel):
                          learning_rate_drop_div=learning_rate_drop_div,
                          load_before_drop=load_before_drop,
                          min_learning_rate=min_learning_rate,
+                         device=device,
                          **kwargs)
 
     def train_on_batch(self, input_ids_batch, attention_mask_batch, target_ids_batch) -> Dict:

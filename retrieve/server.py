@@ -10,8 +10,12 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 
 PORT = int(os.getenv("PORT"))
+LITE_INDEX = int(os.getenv("LITE_INDEX"))
 
-config_name = "retriever.json"
+if LITE_INDEX:
+    config_name = "retriever_lite.json"
+else:
+    config_name = "retriever.json"
 
 try:
     retriever = build_model(config_name, download=True)

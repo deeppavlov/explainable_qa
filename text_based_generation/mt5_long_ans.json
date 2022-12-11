@@ -24,6 +24,7 @@
         },
         "learning_rate_drop_patience": 20,
         "learning_rate_drop_div": 1.5,
+        "device": "cpu",
         "in": ["input_ids", "attention_mask"],
         "out": ["answer"]
       }

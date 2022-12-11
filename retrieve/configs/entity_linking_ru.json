@@ -3,16 +3,6 @@
     "in": ["entity_substr", "tags", "probas", "sentences", "entity_offsets", "sentences_offsets"],
     "pipe": [
       {
-        "class_name": "models.entity_extraction.torch_transformers_el_ranker:TorchTransformersEntityRankerInfer",
-        "id": "entity_descr_ranking",
-        "pretrained_bert": "{TRANSFORMER}",
-        "encoder_weights_path": "{MODELS_PATH}/entity_linking_rus/encoder.pth.tar",
-        "bilinear_weights_path": "{MODELS_PATH}/entity_linking_rus/bilinear.pth.tar",
-        "special_token_id": 30522,
-        "emb_size": 264,
-        "block_size": 6
-      },
-      {
         "class_name": "models.entity_extraction.entity_linking:EntityLinker",
         "in": ["entity_substr", "tags", "probas", "sentences", "entity_offsets", "sentences_offsets"],
         "out": ["entity_ids", "entity_conf", "entity_pages", "entity_labels"],
@@ -20,7 +10,6 @@
         "entities_database_filename": "el_db_rus.db",
         "words_dict_filename": "{DOWNLOADS_PATH}/entity_linking_rus/words_dict.pickle",
         "ngrams_matrix_filename": "{DOWNLOADS_PATH}/entity_linking_rus/ngrams_matrix.npz",
-        "entity_ranker": "#entity_descr_ranking",
         "rank_in_runtime": true,
         "num_entities_for_bert_ranking": 30,
         "use_gpu": false,
@@ -28,7 +17,7 @@
         "num_entities_to_return": 7,
         "sort_out_low_conf": true,
         "lemmatize": true,
-        "use_descriptions": true,
+        "use_descriptions": false,
         "use_connections": true,
         "use_tags": true,
         "kb_filename": "{DOWNLOADS_PATH}/wikidata/wikidata_lite.hdt",

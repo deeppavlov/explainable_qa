@@ -193,6 +193,10 @@
         "subdir": "{DOWNLOADS_PATH}/torch_bert_models/bert_base_cased"
       },
       {
+        "url": "http://files.deeppavlov.ai/tmp/bert_small.tar.gz",
+        "subdir": "{DOWNLOADS_PATH}/torch_bert_models/bert_small"
+      },
+      {
         "url": "http://files.deeppavlov.ai/kbqa/models/query_prediction_lcquad2.0_roberta.tar.gz",
         "subdir": "{MODELS_PATH}/classifiers/query_prediction_lcquad2.0_roberta"
       },

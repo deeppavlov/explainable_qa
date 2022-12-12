@@ -20,7 +20,7 @@ PORT = int(os.getenv("PORT"))
 if LAN == "RU":
     config_name = "kbqa_rubq.json"
 elif LAN == "EN":
-    config_name = "kbqa_lcquad.json"
+    config_name = "kbqa_lcquad2.json"
 
 try:
     kbqa = build_model(config_name, download=True)

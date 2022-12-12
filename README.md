@@ -218,7 +218,7 @@ res = requests.post(
 
 res = requests.post(
     "http://0.0.0.0:8008/respond",
-    json={"questions": ["Кто сыграл Бормана в народном телесериале "Семнадцать мгновений весны"?"]}
+    json={"questions": ['Кто сыграл Бормана в народном телесериале "Семнадцать мгновений весны"?']}
 ).json()
 
 res = requests.post(
@@ -228,7 +228,7 @@ res = requests.post(
 
 res = requests.post(
     "http://0.0.0.0:8008/respond",
-    json={"questions": ["Какой футболист в 2004 году получил "Золотой мяч"?"]}
+    json={"questions": ['Какой футболист в 2004 году получил "Золотой мяч"?']}
 ).json()
 ```
 

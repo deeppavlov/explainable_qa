@@ -357,6 +357,28 @@ class QueryGenerator(QueryGeneratorBase):
                 sparql_query = make_sparql_query(queries[0], entity_comb, rel_combs[0], type_comb[0],
                                                  self.gold_query_info)
                 parser_info_list = ["fill_triplets"]
+                if queries and len(queries[0]) > 1 and len(queries[0][1]) == 1 \
+                        and queries[0][1][0][1].split("/")[-1] == "P36":
+                    found_ent = ""
+                    best_comb = []
+                    what_to_return_var = queries[0][2]
+                    if what_to_return_var:
+                        what_to_return_list = [cmb.get(what_to_return_var[0], "") for cmb in found_combs]
+                        what_to_return_list = [ent for ent in what_to_return_list if ent]
+                        what_to_return_list = [ent.split("/")[-1] for ent in what_to_return_list]
+                        what_to_return_list = [ent for ent in what_to_return_list if ent.startswith("Q")]
+                        what_to_return_list = [int(ent[1:]) for ent in what_to_return_list]
+                        what_to_return_list = sorted(what_to_return_list)
+                        if what_to_return_list:
+                            found_ent = f"http://we/Q{what_to_return_list[0]}"
+                        if found_ent:
+                            for cmb in found_combs:
+                                if cmb.get(what_to_return_var[0], "") == found_ent:
+                                    best_comb = cmb
+                                    break
+                    if best_comb:
+                        found_combs = [best_comb]
+
                 parser_query_list = [(queries[0][1], queries[0][2], found_combs[0])]
                 filled_triplets = self.wiki_parser(parser_info_list, parser_query_list)
                 outputs.append({"entities": entity_comb, "types": type_comb, "relations": list(cur_rel_comb),

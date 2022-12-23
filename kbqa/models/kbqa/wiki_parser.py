@@ -435,6 +435,10 @@ class WikiParser:
                 entity = self.format_date(entity, question).replace('$', '')
                 return entity
             
+            elif re.findall(r"[\d]{3,4}-[\d]{2}-[\d]{2}", entity):
+                entity = self.format_date(entity, question).replace('$', '')
+                return entity
+            
             elif entity in ["Yes", "No"]:
                 return entity
 
@@ -647,6 +651,9 @@ class WikiParser:
         return subj, triplets
 
     def fill_triplets(self, init_triplets, what_to_return, comb):
+        out = open("log.txt", 'a')
+        out.write(f"init_triplets {init_triplets} --- what_to_return {what_to_return} --- comb {comb}"+'\n')
+        out.close()
         filled_triplets = []
         for n, (subj, rel, obj) in enumerate(init_triplets):
             if "statement" in self.prefixes and subj.startswith("?") \

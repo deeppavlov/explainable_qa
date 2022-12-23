@@ -155,16 +155,25 @@ class RelRankerInfer(Component, Serializable):
                     if answer_id not in answer_ids:
                         answer_ids.append(answer_id)
 
+                if q_rels == ["P36"]:
+                    answer_ids_pr = [(int(answer_id.split("/")[-1][1:]), answer_id) for answer_id in answer_ids]
+                    answer_ids_pr = sorted(answer_ids_pr, key=lambda x: x[0])
+                    answer_ids = [ans_id_elem[1] for ans_id_elem in answer_ids_pr]
+                    answer_ids = answer_ids[:1]
                 if self.top_possible_answers > 0:
                     answer_ids = answer_ids[:self.top_possible_answers]
                 answer_ids_input = [(answer_id, question) for answer_id in answer_ids]
                 answer_ids = [str(answer_id).split("/")[-1] for answer_id in answer_ids]
                 parser_info_list = ["find_label" for _ in answer_ids_input]
-                answer_labels = self.wiki_parser(parser_info_list, answer_ids_input)
+                init_answer_labels = self.wiki_parser(parser_info_list, answer_ids_input)
                 if n < 7:
                     log.debug(f"answers: {init_answer_ids[:3]} --- query {query} --- entities {q_entities} --- "
-                              f"types {q_types[:3]} {ans_sc_elem[5:]} answer_labels {answer_labels[:3]}")
-                answer_labels = list(set(answer_labels))
+                              f"types {q_types[:3]} --- q_rels {q_rels} --- {ans_sc_elem[5:]} --- "
+                              f"answer_labels {init_answer_labels[:3]}")
+                answer_labels = []
+                for label in init_answer_labels:
+                    if label not in answer_labels:
+                        answer_labels.append(label)
                 answer_labels = [label for label in answer_labels if (label and label != "Not Found")][:5]
                 answer_labels = [str(label) for label in answer_labels]
                 if len(answer_labels) > 2:

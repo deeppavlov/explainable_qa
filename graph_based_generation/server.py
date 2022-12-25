@@ -1,12 +1,13 @@
 import json
 import logging
 import os
+import re
 import requests
 
 import nltk
 from flask import Flask, jsonify, request
 from deeppavlov import build_model
-from nltk.translate.bleu_score import corpus_bleu
+from nltk.translate.bleu_score import corpus_bleu, sentence_bleu
 
 
 logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
@@ -15,6 +16,9 @@ app = Flask(__name__)
 
 PORT = int(os.getenv("PORT"))
 KBQA_ENDPOINT = os.getenv("KBQA_ENDPOINT")
+CORPUS_BLEU = 0
+
+re_tokenizer = re.compile(r"[\w']+|[^\w ]")
 
 config_name = "graph2text_bart_infer.json"
 
@@ -67,19 +71,33 @@ def get_answer_and_explanation():
 
 @app.route("/get_metrics", methods=["POST"])
 def get_metrics():
+    logger.info("---------------- getting metrics")
     with open("/root/.deeppavlov/downloads/lcquad/lcquad_long_ans.json", 'r') as fl:
         dataset = json.load(fl)
     res_answers_list, gold_answers_list = [], []
-    for [question, triplets], gold_answers in dataset:
+    scores1_list, scores2_list = [], []
+    for n, ((question, triplets), init_gold_answers) in enumerate(dataset):
         try:
             texts = generator([triplets])
             res_answers_list.append(nltk.word_tokenize(texts[0]))
-            gold_answers = [nltk.word_tokenize(gold_ans) for gold_ans in gold_answers]
+            gold_answers = [nltk.word_tokenize(gold_ans) for gold_ans in init_gold_answers]
             gold_answers_list.append(gold_answers)
+
+            long_answer = re.findall(re_tokenizer, texts[0].lower())
+            gold_answers = [re.findall(re_tokenizer, gold_answer.lower()) for gold_answer in init_gold_answers]
+            scores1_list.append(sentence_bleu(gold_answers, long_answer, weights=(1, 0, 0, 0)))
+            scores2_list.append(sentence_bleu(gold_answers, long_answer, weights=(0.5, 0.5, 0, 0)))
         except Exception as e:
             logger.info(f"Error in /get_metrics {e}")
-    bleu1 = corpus_bleu(gold_answers_list, res_answers_list, weights=(1, 0, 0, 0))
-    bleu2 = corpus_bleu(gold_answers_list, res_answers_list, weights=(0.5, 0.5, 0, 0))
+        if n % 5 == 0:
+            logger.info(f"num testing sample: {n}")
+
+    if CORPUS_BLEU:
+        bleu1 = corpus_bleu(gold_answers_list, res_answers_list, weights=(1, 0, 0, 0))
+        bleu2 = corpus_bleu(gold_answers_list, res_answers_list, weights=(0.5, 0.5, 0, 0))
+    else:
+        bleu1 = sum(scores1_list) / len(scores1_list)
+        bleu2 = sum(scores2_list) / len(scores2_list)
     logger.info(f"BLEU scores: {bleu1} --- {bleu2}")
     return jsonify({"BLEU-1": bleu1, "BLEU-2": bleu2})
 

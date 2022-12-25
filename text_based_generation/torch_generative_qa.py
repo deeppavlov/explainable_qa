@@ -144,6 +144,7 @@ class TorchGenerativeQA(TorchModel):
         if fname is not None:
             self.load_path = fname
 
+        torch.manual_seed(0)
         if self.pretrained_transformer:
             logger.info(f"From pretrained {self.pretrained_transformer}.")
             config = AutoConfig.from_pretrained(self.pretrained_transformer,

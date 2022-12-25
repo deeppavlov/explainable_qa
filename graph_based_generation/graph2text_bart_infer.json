@@ -47,7 +47,10 @@
         "url": "https://files.deeppavlov.ai/deeppavlov_data/generative_question_answering_new/jointgt_bart/merges.txt",
         "subdir": "{MODEL_PATH}/pretrain"
       },
-
+      {
+        "url": "https://files.deeppavlov.ai/tmp/lcquad_long_ans.json",
+        "subdir": "{DOWNLOADS_PATH}/lcquad"
+      },
       {
         "url": "https://files.deeppavlov.ai/deeppavlov_data/generative_question_answering_new/jointgt_bart_webnlg/pytorch_model.bin",
         "subdir": "{MODEL_PATH}/checkpoint"

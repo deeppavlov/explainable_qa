@@ -17,9 +17,12 @@ import string
 from collections import Counter
 from typing import List
 
+import nltk
 import pymorphy2
 from nltk.corpus import stopwords
 
+
+nltk.download('stopwords')
 
 morph = pymorphy2.MorphAnalyzer()
 stopwords = set(stopwords.words("russian"))

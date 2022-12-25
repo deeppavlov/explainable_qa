@@ -1,5 +1,5 @@
 import requests
 
 
-res = requests.post("http://0.0.0.0:8006/get_metrics", json={"num_samples": 20}).json()
+res = requests.post("http://0.0.0.0:8006/get_metrics_expl", json={"num_samples": "all"}).json()
 print(res)

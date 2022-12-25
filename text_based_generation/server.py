@@ -5,6 +5,7 @@ import os
 import re
 import requests
 
+import nltk
 from flask import Flask, jsonify, request
 from nltk.corpus import stopwords
 from deeppavlov import build_model
@@ -15,6 +16,8 @@ from sacrebleu.metrics import BLEU
 logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 app = Flask(__name__)
+
+nltk.download('stopwords')
 
 PORT = int(os.getenv("PORT"))
 RETRIEVE_ENDPOINT = os.getenv("RETRIEVE_ENDPOINT")
@@ -84,15 +87,17 @@ def get_answer_and_explaination():
     return jsonify(results_batch)
 
 
-@app.route("/get_metrics", methods=["POST"])
-def get_metrics():
+@app.route("/get_metrics_expl", methods=["POST"])
+def get_metrics_expl():
     num_samples = request.json.get("num_samples", 100)
     with open("/root/.deeppavlov/downloads/dsberquad/sbersquad_detailed.json", 'r') as fl:
         dataset = json.load(fl)
 
+    if num_samples == "all":
+        num_samples = len(dataset["test"])
     long_answers = []
     res_answers = []
-    batch_size = 10
+    batch_size = 20
     num_batches = len(dataset["test"][:num_samples]) // batch_size + int(len(dataset["test"][:num_samples]) % batch_size > 0)
     logger.info(f"num_samples {num_samples} -- num_batches {num_batches}")
     for i in range(num_batches):
@@ -102,14 +107,24 @@ def get_metrics():
         for (question, contexts), (short_answer, long_answer) in dataset["test"][i*batch_size:(i+1)*batch_size]:
             q_batch.append(question)
             c_batch.append(contexts)
-            long_answers.append([long_answer])
+            long_answers.append(long_answer)
         res, _ = generator(q_batch, c_batch)
         for output_answer in res:
             output_answer = output_answer.replace("<pad>", "").replace("</s>", "").strip()
             res_answers.append(copy.deepcopy(output_answer))
+        if i % 10 == 0:
+            logger.info(f"number of testing batch: {i}")
     
-    generation_sacrebleu = SacreBLEU.corpus_score(res_answers, long_answers).score
-    
+    generation_sacrebleu = SacreBLEU.corpus_score(res_answers, [long_answers]).score
+    return jsonify({"SacreBLUE of explanation generation": generation_sacrebleu})
+
+
+@app.route("/get_metrics_ans_expl", methods=["POST"])
+def get_metrics_ans_expl():
+    num_samples = request.json.get("num_samples", 100)
+    with open("/root/.deeppavlov/downloads/dsberquad/sbersquad_detailed.json", 'r') as fl:
+        dataset = json.load(fl)
+
     short_answers, res_short_answers = [], []
     long_answers, res_long_answers = [], []
     for (question, contexts), (short_answer, long_answer) in dataset["test"][:num_samples]:
@@ -129,8 +144,7 @@ def get_metrics():
     exact_match = squad_exact_match(short_answers, res_short_answers)
     f1 = squad_f1(short_answers, res_short_answers)
     ans_expl_sacrebleu = SacreBLEU.corpus_score(res_long_answers, long_answers).score
-    return jsonify({"SacreBLUE of explanation generation": generation_sacrebleu,
-                    "SacreBLEU of answer search and subsequent explanation generation": ans_expl_sacrebleu,
+    return jsonify({"SacreBLEU of answer search and subsequent explanation generation": ans_expl_sacrebleu,
                     "F1 of short answers": f1,
                     "Exact match of short answers": exact_match})
 

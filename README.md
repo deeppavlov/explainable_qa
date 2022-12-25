@@ -109,7 +109,7 @@ Accuracy of finding explanations for answers:
 
 SacreBLEU of T5 model which generates answer explanation from question on DSberQuAD dataset:
 
-**SacreBLEU = 46.0.**
+**SacreBLEU = 64.7.**
 
 BLEU scores of JointGT model which generates answer explanation from triplets on subset of LC-QUAD dataset:
 
@@ -188,12 +188,21 @@ Example of the output:
     ]
 ```
 
-### Get metrics of text-based question answering and answer explanation model:
+### Get metrics of text-based answer explanation model:
 
 ```python
 import requests
 
-res = requests.post("http://0.0.0.0:8006/get_metrics", json={"num_samples": 100}).json()
+res = requests.post("http://0.0.0.0:8006/get_metrics_expl", json={"num_samples": 100}).json()
+print(res)
+```
+
+### Get metrics of text-based question answering and subsequent answer explanation model:
+
+```python
+import requests
+
+res = requests.post("http://0.0.0.0:8006/get_metrics_ans_expl", json={"num_samples": 100}).json()
 print(res)
 ```
 

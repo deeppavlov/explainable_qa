@@ -177,7 +177,7 @@
         "subdir": "{DOWNLOADS_PATH}/wikidata"
       },
       {
-        "url": "http://files.deeppavlov.ai/tmp/queries_and_rels_lcquad2.tar.gz",
+        "url": "http://files.deeppavlov.ai/kbqa/wikidata/queries_and_rels_lcquad2.tar.gz",
         "subdir": "{DOWNLOADS_PATH}/wikidata"
       },
       {

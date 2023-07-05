@@ -181,6 +181,10 @@
         "subdir": "{DOWNLOADS_PATH}/wikidata"
       },
       {
+        "url": "http://files.deeppavlov.ai/kbqa/wikidata/queries_and_rels_lcquad2_v2.tar.gz",
+        "subdir": "{DOWNLOADS_PATH}/wikidata"
+      },
+      {
         "url": "http://files.deeppavlov.ai/tmp/kbqa_files_en.tar.gz",
         "subdir": "{DOWNLOADS_PATH}/wikidata_eng"
       },

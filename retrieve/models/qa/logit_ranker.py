@@ -50,7 +50,7 @@ class LogitRanker(Component):
         self.top_n = top_n
         self.return_answer_sentence = return_answer_sentence
 
-    def __call__(self, contexts_batch, questions_batch, doc_ids_batch, doc_pages_batch):
+    def __call__(self, contexts_batch, questions_batch, doc_ids_batch, doc_pages_batch=None):
 
         """
         Sort obtained results from squad reader by logits and get the answer with a maximum logit.

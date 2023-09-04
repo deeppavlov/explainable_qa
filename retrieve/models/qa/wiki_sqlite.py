@@ -25,9 +25,10 @@ logger = getLogger(__name__)
 
 @register('wiki_sqlite_vocab')
 class WikiSQLiteVocab(Component):
-    def __init__(self, load_path: str, shuffle: bool = False, top_n: int = 2, **kwargs) -> None:
+    def __init__(self, load_path: str, shuffle: bool = False, top_n: int = 2, search_ids: bool = False, **kwargs) -> None:
         load_path = str(expand_path(load_path))
         self.top_n = top_n
+        self.search_ids = search_ids
         logger.info("Connecting to database, path: {}".format(load_path))
         try:
             self.connect = sqlite3.connect(load_path, check_same_thread=False)
@@ -80,10 +81,16 @@ class WikiSQLiteVocab(Component):
     
     def get_paragraph_content(self, par_id):
         cursor = self.connect.cursor()
-        cursor.execute(
-            "SELECT text, doc FROM {} WHERE title = ?".format(self.db_name),
-            (par_id,)
-        )
+        if self.search_ids:
+            cursor.execute(
+                "SELECT text, doc FROM {} WHERE idx = ?".format(self.db_name),
+                (par_id,)
+            )
+        else:
+            cursor.execute(
+                "SELECT text, doc FROM {} WHERE title = ?".format(self.db_name),
+                (par_id,)
+            )
         result = cursor.fetchone()
         cursor.close()
         return result

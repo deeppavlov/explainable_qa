@@ -1,0 +1,10 @@
+init_triplets [['http://we/Q11613', 'http://wp/P39', '?s'], ['?s', 'http://wps/P39', '?obj'], ['?s', '?p', '?x']] --- what_to_return ['?obj'] --- comb {'?s': 'http://ws/3_163323', '?obj': 'http://we/Q4416090', '?p': 'http://wpq/P580', '?x': '"+1935-01-03^^T"'}
+init_triplets [['http://we/Q134773', 'http://wpd/P57', '?ent']] --- what_to_return ['?ent'] --- comb {'?ent': 'http://we/Q187364'}
+init_triplets [['http://we/Q134773', 'http://wpd/P57', '?ent']] --- what_to_return ['?ent'] --- comb {'?ent': 'http://we/Q187364'}
+init_triplets [['http://we/Q134773', 'http://wpd/P57', '?ent']] --- what_to_return ['?ent'] --- comb {'?ent': 'http://we/Q187364'}
+init_triplets [['http://we/Q134773', 'http://wpd/P57', '?ent']] --- what_to_return ['?ent'] --- comb {'?ent': 'http://we/Q187364'}
+init_triplets [['http://we/Q134773', 'http://wpd/P57', '?ent']] --- what_to_return ['?ent'] --- comb {'?ent': 'http://we/Q187364'}
+init_triplets [['http://we/Q134773', 'http://wpd/P57', '?ent']] --- what_to_return ['?ent'] --- comb {'?ent': 'http://we/Q187364'}
+init_triplets [['http://we/Q134773', 'http://wpd/P57', '?ent']] --- what_to_return ['?ent'] --- comb {'?ent': 'http://we/Q187364'}
+init_triplets [['http://we/Q134773', 'http://wpd/P57', '?ent']] --- what_to_return ['?ent'] --- comb {'?ent': 'http://we/Q187364'}
+init_triplets [['http://we/Q134773', 'http://wpd/P57', '?ent']] --- what_to_return ['?ent'] --- comb {'?ent': 'http://we/Q187364'}

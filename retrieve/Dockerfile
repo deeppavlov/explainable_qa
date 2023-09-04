@@ -19,12 +19,16 @@ ENV CONFIG=$CONFIG
 ARG PORT
 ENV PORT ${PORT}
 
-ARG LITE_INDEX
-ENV LITE_INDEX ${LITE_INDEX}
+ARG SPARSE_LITE_INDEX
+ENV SPARSE_LITE_INDEX ${SPARSE_LITE_INDEX}
+
+ARG DENSE_INDEX
+ENV DENSE_INDEX ${DENSE_INDEX}
 
 RUN pip install pybind11==2.2.4
 RUN pip install deeppavlov==1.0.0
 COPY ./retrieve/requirements.txt /src/requirements.txt
+RUN pip install --upgrade pip setuptools wheel
 RUN pip install -r /src/requirements.txt
 
 COPY $SRC_DIR /src

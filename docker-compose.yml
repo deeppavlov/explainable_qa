@@ -5,7 +5,8 @@ services:
       args:
         PORT: 8005
         SRC_DIR: retrieve
-        LITE_INDEX: 1
+        DENSE_INDEX: 1
+        SPARSE_LITE_INDEX: 0
       context: .
       dockerfile: retrieve/Dockerfile
     volumes:
@@ -49,6 +50,26 @@ services:
       - 8007:8007
     environment:
       - CUDA_VISIBLE_DEVICES=7
+    
+  llm-based-generation:
+    container_name: llm-based-generation
+    build:
+      args:
+        PORT: 8009
+        SRC_DIR: llm_based_generation
+        KBQA_ENDPOINT: http://kbqa:8008/respond
+        MODEL_NAME: lmsys/vicuna-13b-v1.3
+        PROMPT_STYLE: fewshot_triplets
+        QUANTIZED: 1
+      context: .
+      dockerfile: llm_based_generation/Dockerfile
+    volumes:
+      - "./llm_based_generation:/src"
+      - ~/.cache:/root/.cache
+    ports:
+      - 8009:8009
+    environment:
+      - CUDA_VISIBLE_DEVICES=6
 
   kbqa:
     container_name: kbqa

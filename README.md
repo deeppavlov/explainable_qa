@@ -1,6 +1,23 @@
 # Services for question answering over knowledge graphs and text and answer explanation
 
-Models description
+<!-- TOC -->
+
+- [Navigation]
+    - [Models description](#model description)
+    - [Launching the services](#lauch services)
+    - [Services parameters](#parameters)
+    - [Mapping of volumes](#volumes)
+    - [Models metrics](#metrics)
+    - [Services usage](#usage)
+        - [Russian ODQA](#text russian)
+        - [Russian KDQA](#kbqa russian)
+        - [English KDQA](#kbqa english)
+        - [LLM based KDQA](#llms generation)
+
+<!-- /TOC -->
+
+
+<a name="model description">Models description</a>
 ------------------
 
 KBQA is the system for question answering over knowledge graphs.
@@ -53,7 +70,8 @@ Question Answering system takes as input the question, finds top N relevant para
   style="display: inline-block; margin: 0 auto; max-width: 200px">
 </p>
 
-Launching the services
+
+<a name="lauch services">Launching the services</a>
 ----------------------
 
 Lauch the service for text-based question answering and answer explanation:
@@ -68,24 +86,27 @@ Lauch the service which performs question answering over knowledge graphs and ou
 docker-compose up --build kbqa
 ```
 
-Launch the service which generates text explaining the answer from triplets:
+Launch the service that generated verbalized answers to the questions or generates text from triplets:
 
 ```shell
 docker-compose up --build graph-based-generation
 ```
 
-Launch the services to get answer to the question, triplets, which explain the answer, and generated text with answer explanation:
+Launch the LLM based service that generated verbalized answers to the questions or generates text from triplets:
 
 ```shell
-docker-compose up --build kbqa graph-based-generation
+docker-compose up --build llm-based-generation
 ```
 
-Services parameters
+
+
+<a name="parameters">Services parameters</a>
 -------------------
 
 To choose the language of KBQA, you should change the line 58 in docker-compose.yml file: RU for Russian, EN for English.
 
-Mapping of volumes
+
+<a name="volumes">Mapping of volumes</a>
 ------------------
 
 In docker-compose.yml the default mapping of the volume with model checkpoints and databases in the following:
@@ -96,7 +117,9 @@ You can change this mapping to your custom:
 
  <your_custom_local_directory>:/root/.deeppavlov
 
-Models metrics
+
+
+<a name="metrics">Models metrics</a>
 --------------
 
 Accuracy of Russian version of KBQA on RuBQ2.0 dataset:
@@ -117,10 +140,12 @@ BLEU-1 | BLEU-2
 --- | ---
 66.5 | 52.4
 
-Services usage
+
+
+<a name="usage">Services usage</a>
 --------------
 
-### Generate detailed answer explanation from the question and paragraph:
+### <a name="text russian">Generate detailed answer explanation from the question and paragraph:</a>
 
 ```python
 import requests
@@ -206,9 +231,11 @@ res = requests.post("http://0.0.0.0:8006/get_metrics_ans_expl", json={"num_sampl
 print(res)
 ```
 
+
+
 ### Answer the question over knowledge graph and get an explanation of the answer (triplets from the KG which connect the entities from the question and answer entities)
 
-#### Russian version of Knowledge Base Question Answering
+#### <a name="kbqa russian">Russian version of Knowledge Base Question Answering</a>
 
 ```python
 import requests
@@ -241,7 +268,7 @@ res = requests.post(
 ).json()
 ```
 
-#### English version of Knowledge Base Question Answering
+#### <a name="kbqa english">English version of Knowledge Base Question Answering</a>
 
 ```python
 import requests
@@ -390,10 +417,50 @@ res = requests.post(
 
 ### Get metrics of the model, which generates answer explanation from triplets:
 
-
 ```python
 import requests
 
 res = requests.post("http://0.0.0.0:8007/get_metrics", json={"num_samples": 100}).json()
 print(res)
+```
+
+
+### <a name="llms generation">Generate sentence explaining the answer with LLMs:</a>
+
+Currently, the following LLMs were evaluated on the task. Depending on your computational resources, you might want to load a quantized model or not. To choose the specific version of the LLM you want and tweak the parameters, go the the docker-compose.yaml file. Generation parameters are in the /llm_based_generation/generation_params.json file.
+
+* [Vicuna 13B](https://huggingface.co/lmsys/vicuna-13b-v1.3)
+* [OpenAssistant's Pythia](https://huggingface.co/OpenAssistant/pythia-12b-sft-v8-7k-steps)
+* [Bloomz 7B](https://huggingface.co/bigscience/bloomz-7b1)
+* [GPT-J](https://huggingface.co/EleutherAI/gpt-j-6B)
+
+
+The approximate hardware resources required to use the models are as follows:
+
+| Model Parameters | GPU RAM        | CPU RAM | DISK   | Generate time |
+| ---------------- | -------------- | ------- | ------ | ------------- |
+| Vicuna           | 8.4GB          | X.XGB   | XX.XGB | ~14-15s       |
+| Pythia           | 8.4GB          | X.XGB   | XX.XGB | ~20s          |  
+| BLOOMZ           | 8.4GB          | X.XGB   | XX.XGB | ~5-6s         |
+| GPT-J            | 8.4GB          | X.XGB   | XX.XGB | ~6s           |
+
+
+Generating verbalized answer from graphs using LLMs is the same as when using fine-tune JointGT model. Just change the port to 8009. 
+
+```python
+import requests
+
+res = requests.post(
+    "http://0.0.0.0:8009/generate",
+    json={"triplets": [[["Jean-Paul Sartre", "residence", "Le Havre"],
+                        ["Le Havre", "start time", "1931"]]]}
+).json()
+
+res = requests.post(
+    "http://0.0.0.0:8009/ans_expl",
+    json={"questions": ["What position was held by Harry S. Truman on 1/3/1935?"]}
+).json()
+
+res = requests.post("http://0.0.0.0:8009/get_metrics", json={"num_samples": 100}).json()
+
 ```

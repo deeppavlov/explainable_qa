@@ -1,0 +1,58 @@
+{
+    "chainer": {
+      "in": ["question_raw"],
+      "pipe": [
+        {
+          "class_name": "models.qa.retriever:PassageRetriever",
+          "load_path": "{MODEL_PATH}",
+          "query_encoder_file": "query_encoder_ru.pth.tar",
+          "index_file": "index_file_PQ64_OPQ_expl_qa.idx",
+          "pretrained_model": "ai-forever/ruBert-base",
+          "in": ["question_raw"],
+          "out": ["par_ids"]
+        },
+        {
+          "class_name": "models.qa.wiki_sqlite:WikiSQLiteVocab",
+          "in": ["par_ids"],
+          "out": ["top_pars", "par_ids"],
+          "shuffle": false,
+          "search_ids": true,
+          "load_path": "{DOWNLOADS_PATH}/odqa/ruwiki_par_page_ids.db"
+        },
+        {
+          "class_name": "string_multiplier",
+          "in": ["question_raw", "top_pars"],
+          "out":["questions"]
+        },
+        {
+          "class_name": "models.qa.logit_ranker:LogitRanker",
+          "batch_size": 64,
+          "squad_model": {"config_path": "configs/qa_multisberquad_bert.json"},
+          "sort_noans": true,
+          "return_answer_sentence": true,
+          "top_n": 50,
+          "in": ["top_pars", "questions", "par_ids"],
+          "out": ["answers", "answer_scores", "answer_logits", "answer_places", "answer_doc_ids", "answer_doc_pages",
+                  "answer_sentences"]
+        }
+      ],
+      "out": ["answers", "answer_scores", "answer_logits", "answer_places", "answer_sentences"]
+    },
+    "metadata": {
+      "variables": {
+        "ROOT_PATH": "~/.deeppavlov",
+        "DOWNLOADS_PATH": "{ROOT_PATH}/downloads",
+        "MODEL_PATH": "{ROOT_PATH}/models/biencoder"
+      },
+      "download": [
+        {
+          "url": "http://files.deeppavlov.ai/tmp/raushan/biencoder/retriever_files.tar.gz",
+          "subdir": "{MODEL_PATH}"
+        },
+        {
+            "url": "http://files.deeppavlov.ai/tmp/raushan/biencoder/ruwiki_par_page_ids.tar.gz",
+            "subdir": "{DOWNLOADS_PATH}/odqa"
+        }
+      ]
+    }
+  }

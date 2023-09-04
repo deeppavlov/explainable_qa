@@ -10,9 +10,15 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 
 PORT = int(os.getenv("PORT"))
-LITE_INDEX = int(os.getenv("LITE_INDEX"))
+SPARSE_LITE_INDEX = int(os.getenv("SPARSE_LITE_INDEX"))
+DENSE_INDEX = int(os.getenv("DENSE_INDEX"))
 
-if LITE_INDEX:
+if DENSE_INDEX and SPARSE_LITE_INDEX:
+    logger.warning(f"Both lite and dense index options are chosen. Will load dense by default.")
+
+if DENSE_INDEX:
+    config_name = "retriever_dense.json"
+elif SPARSE_LITE_INDEX:
     config_name = "retriever_lite.json"
 else:
     config_name = "retriever.json"

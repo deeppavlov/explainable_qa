@@ -20,6 +20,8 @@ ARG PORT
 ENV PORT $PORT
 ARG LAN
 ENV LAN $LAN
+ARG FACTOID_CLF
+ENV FACTOID_CLF $FACTOID_CLF
 
 RUN pip install pybind11==2.2.4
 RUN pip install deeppavlov==1.0.0

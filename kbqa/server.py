@@ -10,12 +10,13 @@ from utils.sq_reader import RuBQReader, LCQuADReader
 from utils.preprocessors import get_ent_rels
 
 
-logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
+logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 app = Flask(__name__)
 
 LAN = str(os.getenv("LAN"))
 PORT = int(os.getenv("PORT"))
+FACTOID_CLF = int(os.getenv("FACTOID_CLF"))
 
 if LAN == "RU":
     config_name = "kbqa_rubq.json"
@@ -24,6 +25,7 @@ elif LAN == "EN":
 
 try:
     kbqa = build_model(config_name, download=True)
+    factoid_clf = build_model("configs/factoid_classifier.json", download=True)
     logger.info(f"kbqa model is loaded: {kbqa}")
 except Exception as e:
     logger.exception(e)
@@ -43,6 +45,10 @@ def respond():
                 num_rus_letters += 1
             elif letter in alphabet_eng:
                 num_eng_letters += 1
+    if FACTOID_CLF and LAN == "EN":
+        logger.info(f"Factoid classification on, removing non-factoid questions from input")
+        preds = factoid_clf(questions_batch)
+        questions_batch = [q for q, p in zip(questions_batch, preds) if p[0] > 0.5]
     if (LAN == "RU" and num_rus_letters > num_eng_letters) or (LAN == "EN" and num_eng_letters > num_rus_letters):
         answer_info_batch = []
         try:
@@ -162,4 +168,4 @@ def get_metrics():
 
 
 if __name__ == "__main__":
-    app.run(debug=False, host="0.0.0.0", port=PORT)
+    app.run(debug=True, host="0.0.0.0", port=PORT)

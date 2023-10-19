@@ -3,21 +3,21 @@
 <!-- TOC -->
 
 - [Navigation]
-    - [Models description](#model description)
-    - [Launching the services](#lauch services)
+    - [Models description](#model_description)
+    - [Launching the services](#lauch_services)
     - [Services parameters](#parameters)
     - [Mapping of volumes](#volumes)
     - [Models metrics](#metrics)
     - [Services usage](#usage)
-        - [Russian ODQA](#text russian)
-        - [Russian KDQA](#kbqa russian)
-        - [English KDQA](#kbqa english)
-        - [LLM based KDQA](#llms generation)
+        - [Russian ODQA](#text_russian)
+        - [Russian KBQA](#kbqa_russian)
+        - [English KBQA](#kbqa_english)
+        - [LLM based KDQA](#llms_generation)
 
 <!-- /TOC -->
 
 
-<a name="model description">Models description</a>
+<a name="model_description">Models description</a>
 ------------------
 
 KBQA is the system for question answering over knowledge graphs.
@@ -71,7 +71,7 @@ Question Answering system takes as input the question, finds top N relevant para
 </p>
 
 
-<a name="lauch services">Launching the services</a>
+<a name="lauch_services">Launching the services</a>
 ----------------------
 
 Lauch the service for text-based question answering and answer explanation:
@@ -145,7 +145,7 @@ BLEU-1 | BLEU-2
 <a name="usage">Services usage</a>
 --------------
 
-### <a name="text russian">Generate detailed answer explanation from the question and paragraph:</a>
+### <a name="text_russian">Generate detailed answer explanation from the question and paragraph:</a>
 
 ```python
 import requests
@@ -235,7 +235,7 @@ print(res)
 
 ### Answer the question over knowledge graph and get an explanation of the answer (triplets from the KG which connect the entities from the question and answer entities)
 
-#### <a name="kbqa russian">Russian version of Knowledge Base Question Answering</a>
+#### <a name="kbqa_russian">Russian version of Knowledge Base Question Answering</a>
 
 ```python
 import requests
@@ -268,7 +268,7 @@ res = requests.post(
 ).json()
 ```
 
-#### <a name="kbqa english">English version of Knowledge Base Question Answering</a>
+#### <a name="kbqa_english">English version of Knowledge Base Question Answering</a>
 
 ```python
 import requests
@@ -425,7 +425,7 @@ print(res)
 ```
 
 
-### <a name="llms generation">Generate sentence explaining the answer with LLMs:</a>
+### <a name="llms_generation">Generate sentence explaining the answer with LLMs:</a>
 
 Currently, the following LLMs were evaluated on the task. Depending on your computational resources, you might want to load a quantized model or not. To choose the specific version of the LLM you want and tweak the parameters, go the the docker-compose.yaml file. Generation parameters are in the /llm_based_generation/generation_params.json file.
 

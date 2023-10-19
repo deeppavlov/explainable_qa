@@ -78,6 +78,7 @@ services:
         PORT: 8008
         SRC_DIR: kbqa
         LAN: EN
+        FACTOID_CLF: 1
       context: .
       dockerfile: kbqa/Dockerfile
     volumes:

@@ -1,0 +1,50 @@
+{
+  "chainer": {
+    "in": ["question", "contexts"],
+    "pipe": [
+      {
+        "class_name": "models.generation.preprocessors:TorchTransformersGenerativeQAPreprocessor",
+        "vocab_file": "{TRANSFORMER}",
+        "max_seq_length": 512,
+        "answer_maxlength": 30,
+        "in": ["question", "contexts"],
+        "out": ["input_ids", "attention_mask", "target_ids"]
+      },
+      {
+        "class_name": "models.generation.torch_generative_qa:TorchGenerativeQA",
+        "pretrained_transformer": "{TRANSFORMER}",
+        "save_path": "{MODEL_PATH}/model",
+        "load_path": "{MODEL_PATH}/model",
+        "optimizer": "AdamW",
+        "optimizer_parameters": {
+          "lr": 3e-04,
+          "weight_decay": 0.01,
+          "betas": [0.9, 0.999],
+          "eps": 1e-06
+        },
+        "learning_rate_drop_patience": 20,
+        "learning_rate_drop_div": 1.5,
+        "device": "cpu",
+        "in": ["input_ids", "attention_mask"],
+        "out": ["answer", "ppl"]
+      }
+    ],
+    "out": ["answer"]
+  },
+  "metadata": {
+    "variables": {
+      "LOWERCASE": false,
+      "TRANSFORMER": "t5-base",
+      "ROOT_PATH": "~/.deeppavlov",
+      "DOWNLOADS_PATH": "{ROOT_PATH}/downloads",
+      "MODELS_PATH": "{ROOT_PATH}/models",
+      "MODEL_PATH": "{MODELS_PATH}/generative_qa/{TRANSFORMER}"
+    },
+    "download": [
+      {
+        "url": "https://files.deeppavlov.ai/tmp/custom_graph/generation/model.pth.tar",
+        "subdir": "{MODEL_PATH}"
+      }
+    ]
+  }
+}

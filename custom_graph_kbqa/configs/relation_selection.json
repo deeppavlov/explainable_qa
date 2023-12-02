@@ -1,0 +1,38 @@
+{
+  "chainer": {
+    "in": ["question"],
+    "pipe": [
+      {
+        "id": "rel_ranker",
+        "bs": 30,
+        "class_name": "models.kbqa.rel_ranking_infer:RelRankerInfer",
+        "load_path": "{DOWNLOADS_PATH}/custom_graph",
+        "rel_q2name_filename": "relations_dict_id.pickle",
+        "ranker": {"config_path": "configs/relation_ranking_infer.json"}
+      },
+      {
+        "class_name": "models.kbqa.rel_ranking_infer:RelationsSelector",
+        "rel_ranker": "#rel_ranker",
+        "topk": 10,
+        "in": ["question"],
+        "out": ["relations_ids", "relations_labels"]
+      }
+    ],
+    "out": ["relations_ids", "relations_labels"]
+  },
+  "metadata": {
+    "variables": {
+      "ROOT_PATH": "~/.deeppavlov",
+      "DOWNLOADS_PATH": "{ROOT_PATH}/downloads",
+      "MODELS_PATH": "{ROOT_PATH}/models",
+      "TRANSFORMER": "bert_base_uncased",
+      "MODEL_PATH": "{MODELS_PATH}/classifiers/rel_ranking_bert_en"
+    },
+    "download": [
+      {
+        "url": "https://files.deeppavlov.ai/tmp/custom_graph/relations_dict_id.pickle",
+        "subdir": "{DOWNLOADS_PATH}/custom_graph"
+      }
+    ]
+  }
+}

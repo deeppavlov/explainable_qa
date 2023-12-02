@@ -1,0 +1,25 @@
+{
+    "chainer": {
+      "in": ["question"],
+      "pipe": [
+        {
+            "config_path": "configs/relation_selection.json",
+            "in": ["question"],
+            "out": ["relations_ids", "relations_labels"]
+        }
+      ],
+      "out": ["relations_ids", "relations_labels"]
+    },
+    "metadata": {
+      "variables": {
+        "ROOT_PATH": "/home/surkov/.deeppavlov",
+        "DOWNLOADS_PATH": "{ROOT_PATH}/downloads",
+        "MODELS_PATH": "{ROOT_PATH}/models",
+        "CONFIGS_PATH": "{DEEPPAVLOV_PATH}/configs"
+      },
+      "download": [
+       
+      ]
+    }
+  }
+  

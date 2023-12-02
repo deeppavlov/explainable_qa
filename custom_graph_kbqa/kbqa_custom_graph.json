@@ -1,0 +1,65 @@
+{
+    "chainer": {
+      "in": ["question"],
+      "pipe": [
+        {
+            "config_path": "configs/relation_selection.json",
+            "in": ["question"],
+            "out": ["relations_ids", "relations_labels"]
+        },
+        {
+            "config_path": "configs/torch_generative_qa.json",
+            "in": ["question", "relations_labels"],
+            "out": ["s_expression_raw"]
+        },
+        {
+          "id": "entity_linker",
+          "class_name": "models.entity_extraction.entity_linking:EntityLinker",
+          "load_path": "{DOWNLOADS_PATH}/custom_graph",
+          "entities_database_filename": "entities.db",
+          "use_descriptions": false
+        },
+        {
+          "class_name": "models.kbqa.s_expression_processor:SExpressionProcessor",
+          "entity_linker": "#entity_linker",
+          "in": ["s_expression_raw", "relations_ids", "relations_labels"],
+          "out": ["s_expression"]
+        },
+        {
+          "class_name": "models.kbqa.query_generator:QueryGenerator",
+          "in": ["s_expression"],
+          "out": ["sparql_query"]
+        },
+        {
+          "class_name": "models.kbqa.query_executor:QueryExecutor",
+          "path_to_hdt": "{DOWNLOADS_PATH}/custom_graph/freebase.hdt",
+          "in": ["sparql_query"],
+          "out": ["answer_arguments", "answer_names"]
+        }
+      ],
+      "out": ["answer_arguments", "answer_names"]
+    },
+    "metadata": {
+      "variables": {
+        "ROOT_PATH": "/home/surkov/.deeppavlov",
+        "DOWNLOADS_PATH": "{ROOT_PATH}/downloads",
+        "MODELS_PATH": "{ROOT_PATH}/models",
+        "CONFIGS_PATH": "{DEEPPAVLOV_PATH}/configs"
+      },
+      "download": [
+        {
+          "url": "https://files.deeppavlov.ai/tmp/custom_graph/freebase.hdt",
+          "subdir": "{DOWNLOADS_PATH}/custom_graph"
+        },
+        {
+          "url": "https://files.deeppavlov.ai/tmp/custom_graph/freebase.hdt.index.v1-1",
+          "subdir": "{DOWNLOADS_PATH}/custom_graph"
+        },
+        {
+          "url": "https://files.deeppavlov.ai/tmp/custom_graph/entities.db",
+          "subdir": "{DOWNLOADS_PATH}/custom_graph"
+        }
+      ]
+    }
+  }
+  

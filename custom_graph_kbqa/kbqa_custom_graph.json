@@ -37,7 +37,7 @@
           "out": ["answer_arguments", "answer_names"]
         }
       ],
-      "out": ["answer_arguments", "answer_names"]
+      "out": ["answer_arguments", "answer_names", "s_expression_raw", "sparql_query"]
     },
     "metadata": {
       "variables": {

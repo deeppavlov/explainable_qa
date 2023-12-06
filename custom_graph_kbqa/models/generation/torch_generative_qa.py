@@ -118,14 +118,17 @@ class TorchGenerativeQA(TorchModel):
         input_ = {
             'input_ids': input_ids_batch,
             'attention_mask': attention_mask_batch,
-            'max_length': 50,
-            'num_beams': 3,
+            'max_length': 256,
+            'num_beams': 1,
             'do_sample': True
         }
         
         ppl = 0.0
         with torch.no_grad():
-            answer_ids_batch = self.model.generate(**input_)
+            if self.is_data_parallel:
+                answer_ids_batch = self.model.module.generate(**input_)
+            else:
+                answer_ids_batch = self.model.generate(**input_)
             if target_ids_batch is not None:
                 target_ids_batch = torch.LongTensor(target_ids_batch).to(self.device)
                 loss = self.model(input_ids=input_ids_batch, attention_mask=attention_mask_batch,
@@ -154,7 +157,7 @@ class TorchGenerativeQA(TorchModel):
             self.model = T5ForConditionalGeneration.from_pretrained(self.pretrained_transformer, config=config)
 
         if self.device.type == "cuda" and torch.cuda.device_count() > 1:
-            self.model = torch.nn.DataParallel(self.model)
+            self.model = torch.nn.DataParallel(self.model)      
 
         self.model.to(self.device)
         self.optimizer = getattr(torch.optim, self.optimizer_name)(

@@ -1,5 +1,5 @@
 # Modified version of https://github.com/dki-lab/GrailQA/blob/main/utils/logic_form_util.py
-``
+
 import networkx as nx
 from typing import List
 

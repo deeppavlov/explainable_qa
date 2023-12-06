@@ -6,9 +6,14 @@
             "config_path": "configs/relation_selection.json",
             "in": ["question"],
             "out": ["relations_ids", "relations_labels"]
+        },
+        {
+            "config_path": "configs/torch_generative_qa.json",
+            "in": ["question", "relations_labels"],
+            "out": ["s_expression_raw"]
         }
       ],
-      "out": ["relations_ids", "relations_labels"]
+      "out": ["relations_ids", "relations_labels", "s_expression_raw"]
     },
     "metadata": {
       "variables": {

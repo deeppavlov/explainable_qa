@@ -24,7 +24,7 @@ log = getLogger(__name__)
 
 @register('query_generator')
 class QueryGenerator(Component):
-     """Class for generation SPARQL queries for S-expressions"""
+    """Class for generation SPARQL queries for S-expressions"""
     def __init__(self, **kwargs):
         pass
 

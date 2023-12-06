@@ -31,7 +31,7 @@ def freebase_name_filler(ID):
             SELECT (?x0 AS ?name) WHERE { :""" + ID.replace(PREFIX, "") + """ :type.object.name ?x0 }"""
 
 class QueryExecutor(Component):
-     """Class for executing SPARQL queries"""
+    """Class for executing SPARQL queries"""
     def __init__(self, path_to_hdt, name_filler=freebase_name_filler, **kwargs):
         """
         Args:

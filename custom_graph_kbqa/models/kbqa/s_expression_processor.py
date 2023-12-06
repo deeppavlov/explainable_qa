@@ -22,8 +22,8 @@ from deeppavlov.core.models.serializable import Serializable
 import re
 
 class SExpressionProcessor(Component):
-     """Class for obtaining S-expression from raw S-expression (from generative model output)
-     Performs replacement of entities and relations labels by their names"""
+    """Class for obtaining S-expression from raw S-expression (from generative model output)
+    Performs replacement of entities and relations labels by their names"""
     def __init__(self, entity_linker, **kwargs):
         self.entity_linker = entity_linker
 

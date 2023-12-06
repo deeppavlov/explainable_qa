@@ -1,4 +1,4 @@
 from deeppavlov import build_model
-model = build_model('test.json', download=True)
-question = 'which building has less than 9 floors?'
+model = build_model('kbqa_custom_graph.json', download=False)
+question = "peripheral class game controllers supports which video game version?"
 print(model([question]))

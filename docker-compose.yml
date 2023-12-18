@@ -75,7 +75,7 @@ services:
     container_name: kbqa
     build:
       args:
-        PORT: 8008
+        PORT: 8009
         SRC_DIR: kbqa
         LAN: EN
         FACTOID_CLF: 1
@@ -85,8 +85,25 @@ services:
       - "./kbqa:/src"
       - ~/.deeppavlov:/root/.deeppavlov
     ports:
-      - 8008:8008
+      - 8009:8009
     environment:
-      - CUDA_VISIBLE_DEVICES=7
+      - CUDA_VISIBLE_DEVICES=4
+  
+  factoid-classification:
+    container_name: factoid_classification
+    build:
+      args:
+        PORT: 8010
+        SRC_DIR: factoid_classification
+      context: .
+      dockerfile: factoid_classification/Dockerfile
+    volumes:
+      - "./factoid_classification:/src"
+      - ~/.deeppavlov:/root/.deeppavlov
+    ports:
+      - 8010:8010
+    environment:
+      - CUDA_VISIBLE_DEVICES=4
+
 
 version: '3.7'

@@ -1,0 +1,61 @@
+{
+    "chainer": {
+    "in": ["x"],
+    "in_y": ["y"],
+    "pipe": [
+      {
+        "class_name": "torch_transformers_preprocessor",
+        "vocab_file": "{TRANSFORMER}",
+        "do_lower_case": true,
+        "max_seq_length": 128,
+        "in": ["x"],
+        "out": ["bert_features"]
+      },
+      {
+        "id": "classes_vocab",
+        "class_name": "simple_vocab",
+        "fit_on": ["y"],
+        "save_path": "{MODEL_PATH}/classes.dict",
+        "load_path": "{MODEL_PATH}/classes.dict",
+        "in": ["y"],
+        "out": ["y_ids"]
+      },
+      {
+        "class_name": "torch_transformers_classifier",
+        "n_classes": "#classes_vocab.len",
+        "return_probas": true,
+        "pretrained_bert": "{TRANSFORMER}",
+        "save_path": "{MODEL_PATH}/model",
+        "load_path": "{MODEL_PATH}/model",
+        "optimizer": "AdamW",
+        "optimizer_parameters": {"lr": 1e-05},
+        "learning_rate_drop_patience": 5,
+        "learning_rate_drop_div": 2.0,
+        "in": ["bert_features"],
+        "in_y": ["y_ids"],
+        "out": ["y_pred_probas"]
+      }
+        ],
+        "out": ["y_pred_probas"]
+  },
+    "metadata": {
+        "variables": {
+          "ROOT_PATH": "~/.deeppavlov",
+          "DOWNLOADS_PATH": "{ROOT_PATH}/downloads",
+          "MODELS_PATH": "{ROOT_PATH}/models",
+          "MODEL_PATH": "{MODELS_PATH}/classifiers/factoid_classifier",
+          "TRANSFORMER": "google/bert_uncased_L-2_H-128_A-2"
+      },
+      "download": [
+          {
+            "url": "http://files.deeppavlov.ai/tmp/raushan/factoid_classifier.tar.gz",
+            "subdir": "{MODEL_PATH}"
+          },
+          {
+            "url": "http://files.deeppavlov.ai/tmp/raushan/factoid_dataset.tar.gz",
+            "subdir": "{DOWNLOADS_PATH}/factoid_clf"
+          }
+        ]
+    }
+  }
+    

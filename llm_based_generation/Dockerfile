@@ -1,5 +1,4 @@
 FROM pytorch/pytorch:2.0.1-cuda11.7-cudnn8-devel
-# deeppavlov/base-gpu:0.17.6
 
 ARG SRC_DIR
 

@@ -37,7 +37,7 @@
           "out": ["answer_arguments", "answer_names"]
         }
       ],
-      "out": ["answer_arguments", "answer_names", "s_expression_raw", "sparql_query"]
+      "out": ["answer_arguments", "answer_names", "sparql_query"]
     },
     "metadata": {
       "variables": {
@@ -47,6 +47,10 @@
         "CONFIGS_PATH": "{DEEPPAVLOV_PATH}/configs"
       },
       "download": [
+        {
+          "url": "https://files.deeppavlov.ai/tmp/custom_graph/grail_qa.json",
+          "subdir": "{DOWNLOADS_PATH}/custom_graph"
+        },
         {
           "url": "https://files.deeppavlov.ai/tmp/custom_graph/freebase.hdt",
           "subdir": "{DOWNLOADS_PATH}/custom_graph"

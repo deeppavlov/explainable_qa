@@ -57,7 +57,10 @@ class QueryExecutor(Component):
         for query in sparql_queries:
             answer_arguments.append([])
             answer_names.append([])
-            results = self.graph.query(query)
+            try:
+                results = self.graph.query(query)
+            except:
+                return [''], ['']
             for result in results:
                 answer_arguments[-1].append(str(result.value))
                 if isinstance(result.value, URIRef):

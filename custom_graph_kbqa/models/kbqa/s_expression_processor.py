@@ -34,9 +34,12 @@ class SExpressionProcessor(Component):
         extracted_entities = re.findall(r'\[(.*)\]', s_expression_raw)
         tags = ['e'] * len(extracted_entities)
         probas = [0] * len(extracted_entities)
-        entities_ids = self.entity_linker([extracted_entities], [tags], [probas])[0][0]
-        entities_ids = [e[0] for e in entities_ids]
-        
+        try:
+            entities_ids = self.entity_linker([extracted_entities], [tags], [probas])[0][0]
+            entities_ids = [e[0] for e in entities_ids]
+        except:
+            return s_expression_raw
+
         for ID, label in zip(entities_ids, extracted_entities):
             s_expression_raw = s_expression_raw.replace(f'[{label}]', ID)
         

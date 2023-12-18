@@ -29,7 +29,10 @@ class QueryGenerator(Component):
         pass
 
     def gen_one(self, s_expr):
-        return lisp_to_sparql(s_expr)
+        try:
+            return lisp_to_sparql(s_expr)
+        except:
+            return ""
 
     def __call__(self, s_expr_batch):
         return [self.gen_one(s_expr) for s_expr in s_expr_batch]
